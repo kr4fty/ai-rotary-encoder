@@ -1,6 +1,6 @@
 # Intro
 
-Use this library to connect and use a **rotary encoder** with **ESP32** or **ESP8266**.
+Use this library to connect and use a **rotary encoder** with **ESP32**, **ESP8266** or **STM32F1xx**.
 
 But it is a bit more than just that. 
 
@@ -37,16 +37,16 @@ You will fint there how to implement long press, how to invert button state, but
 The code is nonblocking so try to rotate a rotary encoder while the button is down.
 
 
-# Support fot ESP8266 added 10/2021
+### Support fot ESP8266 added 10/2021
 
 Support added also for ESP8266
 
-# Changes in button processing 10/2021
+### Changes in button processing 10/2021
 
 Old button using interrupt is now obsolete.
 Please look at upadated examples how to handle click, properly initialize encoder and avoid crashing.
 
-# New feature added 02/2021 - accelerated movement
+### New feature added 02/2021 - accelerated movement
 
 In case a range to select is large, for example - select a value between 0 and 1000 and we want 785, without accelerateion you need long time to get to that number.
 However using new implemented acceleration, faster you turn, faster will the value raise.For fine tuning just slow down.
@@ -110,25 +110,22 @@ GND - connect to microcontroler GND
 
 There is no need for external resistors, you can use only the encoder.
 
-3 pin side:
+### 3 pin side:
 
 Right pin (A pin) - connect to any microcontroler input pin with interrupt -> in the example pin 22
-
 Left pin (B pin) - connect to any microcontroler input pin with interrupt -> in the example pin 23
-
 Middle pin - connect to microcontroller Gnd
 
-2 pin side:
+### 2 pin side:
 
 one of the 2 pins: connect to microcontroller Gnd
-
 the other pin: connect to any microcontroller input pin -> in this example pin 25
 
 **You have to set INPUT_PULLUP of Right and Left pins with `pinMode(ROTARY_ENCODER_A_PIN, INPUT_PULLUP);` and `pinMode(ROTARY_ENCODER_B_PIN, INPUT_PULLUP);`**
 Look for example Esp32RotaryEncoderTheShortestExampleNoResistors.
 
 
-update 2024-03-10:
+### update 2024-03-10:
 
 There is an optional parameter in the constructor areEncoderPinsPulldownforEsp32. By default it is true, but in case you use ESP32 you can set it to false. 
 Please note that it doesn't make any change for ESP8266, but only for ESP32.
@@ -142,7 +139,7 @@ AiEsp32RotaryEncoder rotaryEncoder = AiEsp32RotaryEncoder(ROTARY_ENCODER_A_PIN, 
 ```
 
 There is a new option isButtonPulldown. By default it is false, but in case you use ESP32 you can set it to true. See Multi-select example.
-It doesn't make any change for ESP8266, only ESP32.
+It doesn't make any change for ESP8266, only ESP32 and STM32F1xx.
 
 ```
 rotaryEncoder.isButtonPulldown = true;
@@ -153,7 +150,9 @@ rotaryEncoder.isButtonPulldown = true;
 
 I suggest you should start using built in example. After installing library (and reopening Arduino IDE if required) open 
 
-File -> Examples -> Ai Esp32 Rotary Encoder
+File -> Examples -> Ai Rotary Encoder
+
+### Middle pin connected to VCC
 
 If you didnt use suggested pins, adjust defines
 
@@ -162,6 +161,24 @@ If you didnt use suggested pins, adjust defines
 #define ROTARY_ENCODER_B_PIN 21
 #define ROTARY_ENCODER_BUTTON_PIN 25
 #define ROTARY_ENCODER_VCC_PIN 27
+```
+
+### Middle pin connected to GND
+```c
+#define ROTARY_ENCODER_A_PIN                  7
+#define ROTARY_ENCODER_A_PIN                  8
+#define BUTTON_PIN                            9
+#define ROTARY_ENCODER_VCC_PIN               -1 // Using onboard VCC 
+#define ROTARY_ENCODER_STEPS                  4
+#define ROTARY_ENCODER_CENTRAL_PIN_TO_VCC false // middle pin connected to GND
+...
+AiEsp32RotaryEncoder encoder = AiEsp32RotaryEncoder(ROTARY_ENCODER_A_PIN,
+                                                    ROTARY_ENCODER_B_PIN,
+                                                    BUTTON_PIN,
+                                                    ROTARY_ENCODER_VCC_PIN,
+                                                    ROTARY_ENCODER_STEPS,
+                                                    ROTARY_ENCODER_CENTRAL_PIN_TO_VCC);
+
 ```
 
 For ESP8266 you can use Dx as pin names like in example:
