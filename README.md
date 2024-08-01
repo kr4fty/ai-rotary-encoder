@@ -1,6 +1,6 @@
 # Intro
 
-Use this library to connect and use a **rotary encoder** with **ESP32**, **ESP8266** or **STM32F1xx**.
+Use this library to connect and use a **rotary encoder** with **ESP32**, **ESP8266**, **STM32F1xx** or **AVR ATMEGA**.
 
 But it is a bit more than just that. 
 

@@ -30,7 +30,7 @@ class AiEsp32RotaryEncoder
 {
 
 private:
-#if defined(ESP8266) | defined(STM32F1xx)
+#if defined(ESP8266) | defined(STM32F1xx) | defined(__AVR__)
 #else
 	portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
 	portMUX_TYPE buttonMux = portMUX_INITIALIZER_UNLOCKED;
@@ -78,7 +78,7 @@ public:
 #if defined(ESP8266)
 	ICACHE_RAM_ATTR void readEncoder_ISR();
 	ICACHE_RAM_ATTR void readButton_ISR();
-#elif defined(STM32F1xx)
+#elif defined(STM32F1xx) | defined(__AVR__)
 	void readEncoder_ISR();
 	void readButton_ISR();
 #else

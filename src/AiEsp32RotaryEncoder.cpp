@@ -2,7 +2,7 @@
 //
 //
 
-#if defined(ESP8266) | defined(STM32F1xx)
+#if defined(ESP8266) | defined(STM32F1xx) | defined(__AVR__)
 #else
 #include "esp_log.h"
 #define LOG_TAG "AiEsp32RotaryEncoder"
@@ -12,7 +12,7 @@
 
 #if defined(ESP8266)
 ICACHE_RAM_ATTR void AiEsp32RotaryEncoder::readEncoder_ISR()
-#elif defined(STM32F1xx)
+#elif defined(STM32F1xx) | defined(__AVR__)
 void AiEsp32RotaryEncoder::readEncoder_ISR()
 #else
 void IRAM_ATTR AiEsp32RotaryEncoder::readEncoder_ISR()
@@ -20,7 +20,7 @@ void IRAM_ATTR AiEsp32RotaryEncoder::readEncoder_ISR()
 {
 
 	unsigned long now = millis();
-#if defined(ESP8266) | defined(STM32F1xx)
+#if defined(ESP8266) | defined(STM32F1xx) | defined(__AVR__)
 #else
 	portENTER_CRITICAL_ISR(&(this->mux));
 #endif
@@ -145,7 +145,7 @@ void IRAM_ATTR AiEsp32RotaryEncoder::readEncoder_ISR()
 			// Serial.println(this->encoder0Pos);
 		}
 	}
-#if defined(ESP8266) | defined(STM32F1xx)
+#if defined(ESP8266) | defined(STM32F1xx) | defined(__AVR__)
 #else
 	portEXIT_CRITICAL_ISR(&(this->mux));
 #endif
@@ -153,13 +153,13 @@ void IRAM_ATTR AiEsp32RotaryEncoder::readEncoder_ISR()
 
 #if defined(ESP8266)
 ICACHE_RAM_ATTR void AiEsp32RotaryEncoder::readButton_ISR()
-#elif defined(STM32F1xx)
+#elif defined(STM32F1xx) | defined(__AVR__)
 void AiEsp32RotaryEncoder::readButton_ISR()
 #else
 void IRAM_ATTR AiEsp32RotaryEncoder::readButton_ISR()
 #endif
 {
-#if defined(ESP8266) | defined(STM32F1xx)
+#if defined(ESP8266) | defined(STM32F1xx) | defined(__AVR__)
 #else
 	portENTER_CRITICAL_ISR(&(this->buttonMux));
 #endif
@@ -188,7 +188,7 @@ void IRAM_ATTR AiEsp32RotaryEncoder::readButton_ISR()
 		Serial.println(butt_state ? "BUT_DOWN" : "BUT_UP");
 	}
 
-#if defined(ESP8266) | defined(STM32F1xx)
+#if defined(ESP8266) | defined(STM32F1xx) | defined(__AVR__)
 #else
 	portEXIT_CRITICAL_ISR(&(this->buttonMux));
 #endif
@@ -204,7 +204,7 @@ AiEsp32RotaryEncoder::AiEsp32RotaryEncoder(uint8_t encoder_APin, uint8_t encoder
 	this->encoderVccPin = encoder_VccPin;
 	this->encoderSteps = encoderSteps;
 	areEncoderPinsPulldownforEsp32 = areEncoderPinsPulldown_forEsp32;
-#if defined(ESP8266) | defined(STM32F1xx)
+#if defined(ESP8266) | defined(STM32F1xx) | defined(__AVR__)
 	pinMode(this->encoderAPin, INPUT_PULLUP);
 	pinMode(this->encoderBPin, INPUT_PULLUP);
 #else
@@ -246,6 +246,8 @@ long AiEsp32RotaryEncoder::encoderChanged()
 	return encoder0Diff;
 }
 
+#if defined(__AVR__)
+#else
 void AiEsp32RotaryEncoder::setup(void (*ISR_callback)(void), void (*ISR_button)(void))
 {
 	attachInterrupt(digitalPinToInterrupt(this->encoderAPin), ISR_callback, CHANGE);
@@ -254,12 +256,12 @@ void AiEsp32RotaryEncoder::setup(void (*ISR_callback)(void), void (*ISR_button)(
 		attachInterrupt(digitalPinToInterrupt(this->encoderButtonPin), ISR_button, RISING);
 	// attachInterrupt(digitalPinToInterrupt(this->encoderButtonPin), ISR_button, CHANGE);
 }
-
 void AiEsp32RotaryEncoder::setup(void (*ISR_callback)(void))
 {
 	attachInterrupt(digitalPinToInterrupt(this->encoderAPin), ISR_callback, CHANGE);
 	attachInterrupt(digitalPinToInterrupt(this->encoderBPin), ISR_callback, CHANGE);
 }
+#endif
 
 void AiEsp32RotaryEncoder::begin()
 {
@@ -275,7 +277,7 @@ void AiEsp32RotaryEncoder::begin()
 	if (this->encoderButtonPin >= 0)
 	{
 
-#if defined(ESP8266) | defined(STM32F1xx)
+#if defined(ESP8266) | defined(STM32F1xx) | defined(__AVR__)
 		pinMode(this->encoderButtonPin, INPUT_PULLUP);
 #else
 		pinMode(this->encoderButtonPin, isButtonPulldown ? INPUT_PULLDOWN : INPUT_PULLUP);
