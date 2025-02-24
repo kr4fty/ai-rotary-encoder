@@ -101,6 +101,8 @@ public:
 	unsigned long getAcceleration() { return this->rotaryAccelerationCoef; }
 	void setAcceleration(unsigned long acceleration) { this->rotaryAccelerationCoef = acceleration; }
 	void disableAcceleration() { setAcceleration(0); }
+	int8_t getDirection() { return this->lastMovementDirection; } // requires that the acceleration be configured with a value greater than 1
+	void setDirection(int8_t direction) { this->lastMovementDirection = direction; }
 
 	bool isEncoderButtonClicked(unsigned long maximumWaitMilliseconds = 300);
 	bool isEncoderButtonDown();
