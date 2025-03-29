@@ -145,6 +145,19 @@ It doesn't make any change for ESP8266, only ESP32 and STM32F1xx.
 rotaryEncoder.isButtonPulldown = true;
 ```
 
+### update 2025-03-29
+ * Notes on the number of encoder steps and read times for an AVR MCU
+
+Since the number of steps can be 1, 2, or 4 (powers of 2), and since 8-bit MCUs use more clock cycles for division, this creates a delay that could be very significant depending on the implemented application.
+To solve this problem, bit shifts will be used instead of division.
+
+ * Added functions:
+
+     **encoderRotationDetected()**: Returns **true** if the encoder rotated (there was a variation in the counter); otherwise, returns **false**. Much more practical and faster than **encoderChanged()**.
+
+     **getDirection()**: Return -1, 0, 1 (left turn, no turn, right turn).
+
+     **setDirection()**: Set a turning direction.
 
 ## How to use
 

@@ -43,6 +43,7 @@ private:
 
 	bool _circleValues = false;
 	bool isEnabled = true;
+	volatile bool hasChanged=false;
 
 	uint8_t encoderAPin = AIESP32ROTARYENCODER_DEFAULT_A_PIN;
 	uint8_t encoderBPin = AIESP32ROTARYENCODER_DEFAULT_B_PIN;
@@ -102,6 +103,7 @@ public:
 	long readEncoder();
 	void setEncoderValue(long newValue);
 	long encoderChanged();
+	bool encoderRotationDetected(){bool answer = this->hasChanged; this->hasChanged=false; return answer;} // True: if there was change
 	ButtonState currentButtonState();
 	ButtonState readButtonState();
 	unsigned long getAcceleration() { return this->rotaryAccelerationCoef; }

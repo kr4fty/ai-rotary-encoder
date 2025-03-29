@@ -39,6 +39,9 @@ void IRAM_ATTR AiEsp32RotaryEncoder::readEncoder_ISR()
 
 		if (currentDirection != 0)
 		{
+			// there was a change
+			this->hasChanged = true;
+
 			// bool ignoreCorrection = false;
 			// if (this->encoder0Pos > this->_maxEncoderValue) ignoreCorrection = true;
 			// if (this->encoder0Pos < this->_minEncoderValue) ignoreCorrection = true;
