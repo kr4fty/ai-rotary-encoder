@@ -42,9 +42,17 @@ void IRAM_ATTR AiEsp32RotaryEncoder::readEncoder_ISR()
 			// bool ignoreCorrection = false;
 			// if (this->encoder0Pos > this->_maxEncoderValue) ignoreCorrection = true;
 			// if (this->encoder0Pos < this->_minEncoderValue) ignoreCorrection = true;
+			#if not defined(__AVR__)
 			long prevRotaryPosition = this->encoder0Pos / this->encoderSteps;
+			#else
+			long prevRotaryPosition = this->encoder0Pos >> this->shiftAmount;
+			#endif
 			this->encoder0Pos += currentDirection;
+			#if not defined(__AVR__)
 			long newRotaryPosition = this->encoder0Pos / this->encoderSteps;
+			#else			
+			long newRotaryPosition = this->encoder0Pos >> this->shiftAmount;
+			#endif
 
 			if (newRotaryPosition != prevRotaryPosition && rotaryAccelerationCoef > 1)
 			{
@@ -96,7 +104,11 @@ void IRAM_ATTR AiEsp32RotaryEncoder::readEncoder_ISR()
 			optimistic view was that most of the time encoder0Pos values will be near to N*encodersteps
 			*/
 			// respect limits
+			#if not defined (__AVR__)
 			if ((this->encoder0Pos / this->encoderSteps) > (this->_maxEncoderValue / this->encoderSteps))
+			#else
+			if ((this->encoder0Pos >> this->shiftAmount) > (this->_maxEncoderValueDivided))
+			#endif
 			{
 				// Serial.print("circle values limit HIGH");
 				// Serial.print(this->encoder0Pos);
@@ -116,7 +128,11 @@ void IRAM_ATTR AiEsp32RotaryEncoder::readEncoder_ISR()
 				//  Serial.print(" -> ");
 				//  Serial.println(this->encoder0Pos);
 			}
+			#if not defined (__AVR__)
 			else if ((this->encoder0Pos / this->encoderSteps) < (this->_minEncoderValue / this->encoderSteps))
+			#else
+			else if ((this->encoder0Pos >> this->shiftAmount) < (this->_minEncoderValueDivided))
+			#endif
 			{
 				// Serial.print("circle values limit LOW");
 				// Serial.print(this->encoder0Pos);
@@ -204,6 +220,13 @@ AiEsp32RotaryEncoder::AiEsp32RotaryEncoder(uint8_t encoder_APin, uint8_t encoder
 	this->encoderVccPin = encoder_VccPin;
 	this->encoderSteps = encoderSteps;
 	areEncoderPinsPulldownforEsp32 = areEncoderPinsPulldown_forEsp32;
+	#if defined(__AVR__)
+	this->shiftAmount = 0;
+	while (encoderSteps > 1) {
+		encoderSteps >>= 1;
+		this->shiftAmount++;
+	}
+	#endif
 #if defined(ESP8266) | defined(STM32F1xx) | defined(__AVR__)
 	pinMode(this->encoderAPin, INPUT_PULLUP);
 	pinMode(this->encoderBPin, INPUT_PULLUP);
@@ -219,16 +242,29 @@ void AiEsp32RotaryEncoder::setBoundaries(long minEncoderValue, long maxEncoderVa
 	this->_maxEncoderValue = maxEncoderValue * this->encoderSteps;
 
 	this->_circleValues = circleValues;
+
+	#if defined (__AVR__)
+	this->_maxEncoderValueDivided = this->_maxEncoderValue >> this->shiftAmount;
+    this->_minEncoderValueDivided = this->_minEncoderValue >> this->shiftAmount;
+	#endif
 }
 
 long AiEsp32RotaryEncoder::readEncoder()
 {
-	// return (this->encoder0Pos / this->encoderSteps);
+	// return (this->encoder0Pos >> this->shiftAmount);
+	#if not defined (__AVR__)
 	if ((this->encoder0Pos / this->encoderSteps) > (this->_maxEncoderValue / this->encoderSteps))
 		return this->_maxEncoderValue / this->encoderSteps;
 	if ((this->encoder0Pos / this->encoderSteps) < (this->_minEncoderValue / this->encoderSteps))
 		return this->_minEncoderValue / this->encoderSteps;
 	return (this->encoder0Pos / this->encoderSteps);
+	#else
+	if ((this->encoder0Pos >> this->shiftAmount) > (this->_maxEncoderValueDivided))
+		return this->_maxEncoderValueDivided;
+	if ((this->encoder0Pos >> this->shiftAmount) < (this->_minEncoderValueDivided))
+		return this->_minEncoderValueDivided;
+	return (this->encoder0Pos >> this->shiftAmount);
+	#endif
 }
 
 void AiEsp32RotaryEncoder::setEncoderValue(long newValue)

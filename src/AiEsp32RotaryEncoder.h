@@ -53,6 +53,12 @@ private:
 	long _minEncoderValue = -2147483648; // -1 << 15;
 	long _maxEncoderValue = 2147483647;	 // 1 << 15;
 
+	#if defined (__AVR__)
+	long _maxEncoderValueDivided; // this->_maxEncoderValue / this->encoderSteps
+    long _minEncoderValueDivided; // this->_minEncoderValue / this->encoderSteps
+	uint8_t shiftAmount; // Contains the number of shifts to emulate the division
+	#endif
+
 	int8_t old_AB;
 	long lastReadEncoder0Pos;
 	bool previous_butt_state;
